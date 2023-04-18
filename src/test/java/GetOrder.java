@@ -21,8 +21,6 @@ import static org.apache.http.HttpStatus.*;
 public class GetOrder {
 
     private User user;
-    private String accessToken;
-    Gson gson = new Gson();
     private UserApi userApi = new UserApi();
     private OrderApi orderApi = new OrderApi();
 
@@ -32,14 +30,6 @@ public class GetOrder {
         RestAssured.baseURI = userApi.baseURI;
         String login = RandomStringUtils.randomAlphanumeric(7);
         user = new User(login + "@qqq1234567.ru", "autotest123", "autotest111");
-    }
-
-    @After
-    public void deleteUser() {
-        if (accessToken != null) {
-            userApi.deleteUser(accessToken).then().statusCode(SC_ACCEPTED);
-        }
-
     }
 
     @Test
@@ -65,8 +55,6 @@ public class GetOrder {
 
         OrderResponse body = response.getBody().as(OrderResponse.class);
 
-
-        System.out.println(body.success);
         assert Objects.equals(body.success, true);
         assert Objects.equals(body.orders.size(), 1);
         assert Objects.equals(body.orders.get(0).getIngredients(), ingredients);
@@ -74,7 +62,7 @@ public class GetOrder {
 
 
     @Test
-    @DisplayName("Получение заказов с авторизацией")
+    @DisplayName("Получение заказов пользователя")
     public void getUserOrders() {
         // Регистрация пользователя и получение токена
         String token = userApi.createAndLoginUser(user);
@@ -100,8 +88,6 @@ public class GetOrder {
 
         OrderResponse body = response.getBody().as(OrderResponse.class);
 
-
-        System.out.println(body.success);
         assert Objects.equals(body.success, true);
         assert Objects.equals(body.orders.size(), 2);
         assert Objects.equals(body.orders.get(0).getIngredients(), ingredients);

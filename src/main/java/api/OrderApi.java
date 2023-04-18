@@ -29,7 +29,7 @@ public class OrderApi {
 
     private List<String> ingredients;
 
-    public OrderApi(List<String> ingredients){
+    public OrderApi(List<String> ingredients) {
         this.ingredients = ingredients;
     }
 
@@ -43,7 +43,7 @@ public class OrderApi {
         OrderApi orderIngredients = new OrderApi(ingredients);
 
         //Запрос на создание заказа
-        Response response =  given().header("Content-type", "application/json")
+        Response response = given().header("Content-type", "application/json")
                 .header("Authorization", userToken)
                 .body(gson.toJson(orderIngredients))
                 .post(orderDataEndpoint);

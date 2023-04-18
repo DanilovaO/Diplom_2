@@ -41,7 +41,7 @@ public class CreateOrder {
     }
 
     @Test
-    @DisplayName("Создание заказа")
+    @DisplayName("Создание пользовательского заказа")
     public void createUserOrder() {
         // Регистрация пользователя и получение токена
         String token = userApi.createAndLoginUser(user);

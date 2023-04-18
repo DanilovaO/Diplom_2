@@ -40,7 +40,7 @@ public class LoginUserTest {
     }
 
     @Test
-    @DisplayName("Создание заказа")
+    @DisplayName("Проверка создания пользователя")
     public void checkCreateUser() {
         userApi.createUser(user);
 

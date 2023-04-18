@@ -18,7 +18,6 @@ import static org.apache.http.HttpStatus.*;
 
 public class ChangeUserData {
     private User user;
-    private String accessToken;
     Gson gson = new Gson();
     private UserApi userApi = new UserApi();
 
@@ -28,14 +27,6 @@ public class ChangeUserData {
         RestAssured.baseURI = userApi.baseURI;
         String login = RandomStringUtils.randomAlphanumeric(7);
         user = new User(login + "@qqq1234567.ru", "autotest123", "autotest111");
-    }
-
-    @After
-    public void deleteUser() {
-        if (accessToken != null) {
-            userApi.deleteUser(accessToken).then().statusCode(SC_ACCEPTED);
-        }
-
     }
 
     @Test
