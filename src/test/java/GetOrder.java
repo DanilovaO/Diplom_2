@@ -23,6 +23,7 @@ public class GetOrder {
     private User user;
     private UserApi userApi = new UserApi();
     private OrderApi orderApi = new OrderApi();
+    private String accessToken;
 
 
     @Before
@@ -30,6 +31,14 @@ public class GetOrder {
         RestAssured.baseURI = userApi.baseURI;
         String login = RandomStringUtils.randomAlphanumeric(7);
         user = new User(login + "@qqq1234567.ru", "autotest123", "autotest111");
+    }
+
+    @After
+    public void deleteUser() {
+        if (accessToken != null) {
+            userApi.deleteUser(accessToken).then().statusCode(SC_ACCEPTED);
+        }
+
     }
 
     @Test
@@ -65,7 +74,8 @@ public class GetOrder {
     @DisplayName("Получение заказов пользователя")
     public void getUserOrders() {
         // Регистрация пользователя и получение токена
-        String token = userApi.createAndLoginUser(user);
+        accessToken = userApi.createAndLoginUser(user);
+
         // Создание заказа
 
         // Создание массива с ингредиентами
@@ -73,16 +83,16 @@ public class GetOrder {
         ingredients.add("61c0c5a71d1f82001bdaaa75");
         ingredients.add("61c0c5a71d1f82001bdaaa74");
 
-        Boolean createOrderStatus = orderApi.createOrder(token, ingredients);
+        Boolean createOrderStatus = orderApi.createOrder(accessToken, ingredients);
         assert Objects.equals(createOrderStatus, true);
 
 
-        createOrderStatus = orderApi.createOrder(token, ingredients);
+        createOrderStatus = orderApi.createOrder(accessToken, ingredients);
         assert Objects.equals(createOrderStatus, true);
 
         //Запрос на создание заказа
         Response response = given().header("Content-type", "application/json")
-                .header("Authorization", token)
+                .header("Authorization", accessToken)
                 .get(userApi.orderDataEndpoint);
         response.then().statusCode(SC_OK);
 

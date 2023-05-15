@@ -18,6 +18,8 @@ import static org.apache.http.HttpStatus.*;
 
 public class ChangeUserData {
     private User user;
+
+    private String accessToken;
     Gson gson = new Gson();
     private UserApi userApi = new UserApi();
 
@@ -29,13 +31,21 @@ public class ChangeUserData {
         user = new User(login + "@qqq1234567.ru", "autotest123", "autotest111");
     }
 
+    @After
+    public void deleteUser() {
+        if (accessToken != null) {
+            userApi.deleteUser(accessToken).then().statusCode(SC_ACCEPTED);
+        }
+
+    }
+
     @Test
     @DisplayName("Получение пользовательских данных")
     public void checkUserData() {
-        String token = userApi.createAndLoginUser(user);
+        accessToken = userApi.createAndLoginUser(user);
 
         Response getDataResponse = given().header("Content-type", "application/json")
-                .body(gson.toJson(user)).header("authorization", token)
+                .body(gson.toJson(user)).header("authorization", accessToken)
                 .get(userApi.userDataEndpoint);
         getDataResponse.then().statusCode(SC_OK);
         JsonPath body = getDataResponse.body().jsonPath();
@@ -47,10 +57,10 @@ public class ChangeUserData {
     @Test
     @DisplayName("Изменение пользовательских данных")
     public void changeUserData() {
-        String token = userApi.createAndLoginUser(user);
+        accessToken = userApi.createAndLoginUser(user);
 
         Response getDataResponse = given().header("Content-type", "application/json")
-                .body(gson.toJson(user)).header("authorization", token)
+                .body(gson.toJson(user)).header("authorization", accessToken)
                 .get(userApi.userDataEndpoint);
         getDataResponse.then().statusCode(SC_OK);
         JsonPath body = getDataResponse.body().jsonPath();
@@ -61,7 +71,7 @@ public class ChangeUserData {
         user.setEmail("new_" + user.getEmail());
 
         Response changeDataResponse = given().header("Content-type", "application/json")
-                .body(gson.toJson(user)).header("authorization", token)
+                .body(gson.toJson(user)).header("authorization", accessToken)
                 .patch(userApi.userDataEndpoint);
         changeDataResponse.then().statusCode(SC_OK);
         JsonPath newBody = changeDataResponse.body().jsonPath();
@@ -73,13 +83,13 @@ public class ChangeUserData {
     @Test
     @DisplayName("Изменение email на уже использующийся")
     public void changeUserEmailOnAlreadyExists() {
-        String token = userApi.createAndLoginUser(user);
+        accessToken = userApi.createAndLoginUser(user);
         User newUser = new User(user);
         newUser.setEmail("new_" + user.getEmail());
         userApi.createUser(newUser);
 
         Response getDataResponse = given().header("Content-type", "application/json")
-                .body(gson.toJson(user)).header("authorization", token)
+                .body(gson.toJson(user)).header("authorization", accessToken)
                 .get(userApi.userDataEndpoint);
         getDataResponse.then().statusCode(SC_OK);
         JsonPath body = getDataResponse.body().jsonPath();
@@ -88,7 +98,7 @@ public class ChangeUserData {
                 String.format("{email=%s, name=%s}", user.getEmail(), user.getName()).toLowerCase());
 
         Response changeDataResponse = given().header("Content-type", "application/json")
-                .body(gson.toJson(newUser)).header("authorization", token)
+                .body(gson.toJson(newUser)).header("authorization", accessToken)
                 .patch(userApi.userDataEndpoint);
         changeDataResponse.then().statusCode(SC_FORBIDDEN);
         JsonPath newBody = changeDataResponse.body().jsonPath();

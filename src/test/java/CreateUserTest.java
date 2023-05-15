@@ -7,6 +7,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.apache.http.HttpStatus.*;
 
@@ -48,12 +49,13 @@ public class CreateUserTest {
     @Test
     @DisplayName("Проверяем статус-код и тело ответа при попытке создать уже существующий аккаунт пользователя")
     public void checkDuplicateUserCreateStatus() {
-        userApi.createUser(user)
-                .then()
+        Response resp = userApi.createUser(user);
+        resp.then()
                 .statusCode(SC_OK)
                 .and()
                 .assertThat()
                 .body("success", equalTo(true));
+        accessToken = resp.body().jsonPath().get("accessToken");
         userApi.createUser(user).then().statusCode(SC_FORBIDDEN).and()
                 .body("message", equalTo("User already exists"));
     }

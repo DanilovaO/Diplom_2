@@ -42,7 +42,7 @@ public class LoginUserTest {
     @Test
     @DisplayName("Проверка создания пользователя")
     public void checkCreateUser() {
-        userApi.createUser(user);
+        accessToken = userApi.createUser(user).body().jsonPath().get("accessToken");
 
         Response loginResponse = given().header("Content-type", "application/json")
                 .body(gson.toJson(user))
@@ -50,9 +50,11 @@ public class LoginUserTest {
         loginResponse.then().statusCode(SC_OK);
 
         loginResponse.then().body("accessToken", not(emptyOrNullString()));
+
         JsonPath body = loginResponse.body().jsonPath();
-        assert Objects.equals(body.get("success").toString(), "true");
+
         assert body.get("accessToken").toString().contains("Bearer");
+        assert Objects.equals(body.get("success").toString(), "true");
         assert body.get("user").toString().equals(
                 String.format("{email=%s, name=%s}", user.getEmail(), user.getName()).toLowerCase());
         assert !Objects.equals(body.get("refreshToken").toString(), "");    }
@@ -77,7 +79,7 @@ public class LoginUserTest {
     @Test
     @DisplayName("Авторизация зарегестрированого с неправильным паролем")
     public void checkUserLoginWithIncorrectPasswordUserCreate() {
-        userApi.createUser(user);
+        accessToken = userApi.createUser(user).body().jsonPath().get("accessToken");
 
         user.setPassword("Incorrect" + user.getPassword());
 
@@ -95,7 +97,7 @@ public class LoginUserTest {
     @Test
     @DisplayName("Авторизация незарегестрированого с неправильным паролем")
     public void checkUserLoginWithIncorrectPasswordUserNotCreate() {
-        userApi.createUser(user);
+        accessToken = userApi.createUser(user).body().jsonPath().get("accessToken");
 
         user.setPassword("Incorrect" + user.getPassword());
 

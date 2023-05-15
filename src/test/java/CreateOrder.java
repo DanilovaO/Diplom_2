@@ -44,7 +44,7 @@ public class CreateOrder {
     @DisplayName("Создание пользовательского заказа")
     public void createUserOrder() {
         // Регистрация пользователя и получение токена
-        String token = userApi.createAndLoginUser(user);
+        String accessToken = userApi.createAndLoginUser(user);
         // Создание массива с ингредиентами
         ArrayList<String> ingredients = new ArrayList<>();
         ingredients.add("61c0c5a71d1f82001bdaaa75");
@@ -55,7 +55,7 @@ public class CreateOrder {
 
         //Запрос на создание заказа
         Response response =  given().header("Content-type", "application/json")
-                .header("Authorization", token)
+                .header("Authorization", accessToken)
                 .body(gson.toJson(orderIngredients))
                 .post(userApi.orderDataEndpoint);
         response.then().statusCode(SC_OK);
